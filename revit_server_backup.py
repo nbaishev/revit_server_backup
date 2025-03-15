@@ -1,23 +1,31 @@
 import os
 
-REVIT_SERVER_DIR="C:\\ProgramData\\Autodesk\\Revit Server 2024\\Projects"
+REVIT_SERVER_PATH="C:\\ProgramData\\Autodesk\\Revit Server 2024\\Projects"
+FILE_PATH="C:\\scripts\\revit_server_projects.txt"
 
 
-def list_folders(path: str):
+def list_folders(path):
     try:
-        # Получаем список папок в указанной директории
-        folders = [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]
+        folders = []
+        for root, dirs, _ in os.walk(path):
+            for folder in dirs:
+                if ".rvt" in folder:
+                    folders.append(os.path.join(root, folder))
         return folders
     except FileNotFoundError:
-        print("Указанный путь не найден.")
+        print("Path not found")
         return []
     except PermissionError:
-        print("Недостаточно прав для доступа к директории.")
+        print("No permission")
         return []
 
+
+def save_in_file(folders):
+    with open(FILE_PATH, "w", encoding="utf-8") as file:
+        for folder in folders:
+            file.write(folder.strip().replace(REVIT_SERVER_PATH, "")[1:] + "\n")
+
+
 if __name__ == "__main__":
-    path = REVIT_SERVER_DIR
-    folders = list_folders(path)
-    print("Найденные папки:")
-    for folder in folders:
-        print(folder)
+    folders = list_folders(REVIT_SERVER_PATH)
+    save_in_file(folders)
